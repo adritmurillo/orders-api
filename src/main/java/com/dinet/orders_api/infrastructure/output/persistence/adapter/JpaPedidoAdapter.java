@@ -8,6 +8,10 @@ import com.dinet.orders_api.infrastructure.output.persistence.repository.PedidoR
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class JpaPedidoAdapter implements PedidoRepositoryPort {
@@ -22,7 +26,19 @@ public class JpaPedidoAdapter implements PedidoRepositoryPort {
     }
 
     @Override
+    public List<Pedido> saveAll(List<Pedido> pedidos) {
+        List<PedidoEntity> entities = pedidos.stream().map(mapper :: toEntity).collect(Collectors.toList());
+        List<PedidoEntity> savedEntities = repo.saveAll(entities);
+        return savedEntities.stream().map(mapper :: toDomain).collect(Collectors.toList());
+    }
+
+    @Override
     public boolean existsByNumeroPedido(String numeroPedido) {
         return repo.existsByNumeroPedido(numeroPedido);
+    }
+
+    @Override
+    public Set<String> existsByNumeroPedidoIn(Set<String> numerosPedido) {
+        return repo.findExistingNumeroPedido(numerosPedido);
     }
 }

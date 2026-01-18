@@ -17,6 +17,7 @@ public class ResumenCargaDto {
     private int totalProcesados;
     private int conError;
     private int guardados;
+    private String correlationId;
 
     @Builder.Default
     private List<ErrorLineaDto> detalleErrores = new ArrayList<>();
@@ -24,15 +25,16 @@ public class ResumenCargaDto {
     @Builder.Default
     private Map<TipoError, Integer> erroresAgrupados = new HashMap<>();
 
+    public void incrementarProcesados(){
+        this.totalProcesados++;
+    }
+
     public void agregarExito(){
         this.guardados++;
-        this.totalProcesados++;
     }
 
     public void agregarError(int numeroLinea, String motivo, TipoError tipo){
         this.conError++;
-        this.totalProcesados++;
-
         ErrorLineaDto error = ErrorLineaDto.builder()
                 .numeroLinea(numeroLinea)
                 .motivo(motivo)
@@ -40,17 +42,8 @@ public class ResumenCargaDto {
                 .build();
 
         this.detalleErrores.add(error);
-
-        if(this.erroresAgrupados.containsKey(tipo)){
-            int cantidadActual = this.erroresAgrupados.get(tipo);
-            this.erroresAgrupados.put(tipo, cantidadActual + 1);
-        } else {
-            this.erroresAgrupados.put(tipo, 1);
-        }
+        this.erroresAgrupados.merge(tipo, 1, Integer :: sum);
 
     }
-
-
-
 
 }

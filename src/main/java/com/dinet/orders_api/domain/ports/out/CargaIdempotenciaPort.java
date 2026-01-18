@@ -6,5 +6,9 @@ import java.util.Optional;
 
 public interface CargaIdempotenciaPort {
     CargaIdempotencia save(CargaIdempotencia cargaIdempotencia);
-    Optional<CargaIdempotencia> findByArchivoHash(String archivoHash);  
+    Optional<CargaIdempotencia> findByArchivoHash(String archivoHash);
+    Optional<CargaIdempotencia> findByIdempotencyKeyAndArchivoHash(
+            String idempotencyKey,
+            String archivoHash
+    );
 }

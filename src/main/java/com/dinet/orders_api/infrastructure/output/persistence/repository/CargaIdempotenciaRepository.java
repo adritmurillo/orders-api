@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface CargaIdempotenciaRepository extends JpaRepository<CargaIdempotenciaEntity, UUID> {
     Optional<CargaIdempotenciaEntity> findByArchivoHash(String archivoHash);
+    Optional<CargaIdempotenciaEntity> findByIdempotencyKeyAndArchivoHash(String idempotencyKey, String archivoHash);
 }

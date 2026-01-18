@@ -7,7 +7,9 @@ import com.dinet.orders_api.infrastructure.output.persistence.repository.ZonaRep
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -18,5 +20,10 @@ public class JpaZonaAdapter implements ZonaRepositoryPort {
     @Override
     public Optional<Zona> findById(String id) {
         return repo.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Zona> findAll() {
+        return repo.findAll().stream().map(mapper :: toDomain).collect(Collectors.toList());
     }
 }

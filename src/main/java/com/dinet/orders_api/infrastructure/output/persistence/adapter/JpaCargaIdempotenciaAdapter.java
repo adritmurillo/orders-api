@@ -27,4 +27,9 @@ public class JpaCargaIdempotenciaAdapter implements CargaIdempotenciaPort {
     public Optional<CargaIdempotencia> findByArchivoHash(String archivoHash) {
         return repo.findByArchivoHash(archivoHash).map(mapper :: toDomain);
     }
+
+    @Override
+    public Optional<CargaIdempotencia> findByIdempotencyKeyAndArchivoHash(String idempotencyKey, String archivoHash) {
+        return repo.findByIdempotencyKeyAndArchivoHash(idempotencyKey, archivoHash).map(mapper :: toDomain);
+    }
 }
