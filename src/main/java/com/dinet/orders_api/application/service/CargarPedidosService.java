@@ -43,6 +43,8 @@ public class CargarPedidosService implements CargarPedidosUseCase {
             String idempotencyKey,
             String correlationId
     ) {
+        log.info("Iniciando carga de pedidos");
+
         ResumenCargaDto resumen = ResumenCargaDto.builder()
                 .correlationId(correlationId)
                 .detalleErrores(new ArrayList<>())
@@ -50,46 +52,39 @@ public class CargarPedidosService implements CargarPedidosUseCase {
                 .build();
 
         try {
+            // Leer archivo completo
             byte[] archivoBytes;
             try (InputStream inputStream = archivo.getInputStream()) {
                 archivoBytes = inputStream.readAllBytes();
             }
 
+            // Calcular hash
             String archivoHash = hash.calcularSHA256(new ByteArrayInputStream(archivoBytes));
-            log.debug("Hash SHA-256 calculado: {}", archivoHash);
 
+            // Verificar si ya fue procesado
             Optional<CargaIdempotencia> cargaExistente =
-                    cargaRepo.findByIdempotencyKeyAndArchivoHash(
-                            idempotencyKey,
-                            archivoHash
-                    );
+                    cargaRepo.findByIdempotencyKeyAndArchivoHash(idempotencyKey, archivoHash);
 
             if (cargaExistente.isPresent()) {
-                log.warn("Archivo ya procesado. IdempotencyKey: {}, Hash: {}",
-                        idempotencyKey, archivoHash);
-                resumen.agregarError(
-                        0,
-                        "Este archivo ya fue procesado anteriormente con esta clave de idempotencia",
-                        TipoError.DUPLICADO
-                );
+                resumen.agregarError(0, "Archivo ya procesado anteriormente", TipoError.DUPLICADO);
                 return resumen;
             }
 
+            // Registrar carga
             registrarCargaIdempotencia(idempotencyKey, archivoHash);
-            log.info("Carga registrada para idempotencia");
 
+            // Cargar catálogos
             Map<String, Cliente> clientesMap = cargarClientes();
             Map<String, Zona> zonasMap = cargarZonas();
-            log.info("Catálogos cargados: {} clientes, {} zonas",
-                    clientesMap.size(), zonasMap.size());
 
+            // Procesar CSV
             try (InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(archivoBytes), StandardCharsets.UTF_8);
                  CSVReader csvReader = new CSVReader(reader)) {
 
                 List<String[]> lineas = csvReader.readAll();
 
                 if (lineas.isEmpty()) {
-                    resumen.agregarError(0, "El archivo CSV está vacío", TipoError.FORMATO_INVALIDO);
+                    resumen.agregarError(0, "Archivo vacío", TipoError.FORMATO_INVALIDO);
                     return resumen;
                 }
 
@@ -97,22 +92,13 @@ public class CargarPedidosService implements CargarPedidosUseCase {
                 procesarEnLotes(lineasDatos, clientesMap, zonasMap, resumen);
 
             } catch (CsvException e) {
-                log.error("Error parseando CSV", e);
-                resumen.agregarError(0, "Error al leer el archivo CSV: " + e.getMessage(),
-                        TipoError.FORMATO_INVALIDO);
+                resumen.agregarError(0, "Error leyendo CSV: " + e.getMessage(), TipoError.FORMATO_INVALIDO);
             }
 
-            log.info("Carga completada. Total: {}, Guardados: {}, Errores: {}",
-                    resumen.getTotalProcesados(), resumen.getGuardados(), resumen.getConError());
-
         } catch (IOException e) {
-            log.error("Error procesando archivo", e);
-            resumen.agregarError(0, "Error leyendo el archivo: " + e.getMessage(),
-                    TipoError.FORMATO_INVALIDO);
+            resumen.agregarError(0, "Error con el archivo: " + e.getMessage(), TipoError.FORMATO_INVALIDO);
         } catch (Exception e) {
-            log.error("Error inesperado durante la carga", e);
-            resumen.agregarError(0, "Error inesperado: " + e.getMessage(),
-                    TipoError.FORMATO_INVALIDO);
+            resumen.agregarError(0, "Error inesperado: " + e.getMessage(), TipoError.FORMATO_INVALIDO);
         }
 
         return resumen;
@@ -121,7 +107,7 @@ public class CargarPedidosService implements CargarPedidosUseCase {
     @Transactional
     protected void registrarCargaIdempotencia(String idempotencyKey, String archivoHash) {
         CargaIdempotencia carga = new CargaIdempotencia();
-        carga.setId(UUID.randomUUID());
+//        carga.setId(UUID.randomUUID());
         carga.setIdempotencyKey(idempotencyKey);
         carga.setArchivoHash(archivoHash);
         carga.setCreatedAt(LocalDateTime.now());
@@ -137,6 +123,8 @@ public class CargarPedidosService implements CargarPedidosUseCase {
             ResumenCargaDto resumen
     ) {
         List<Pedido> pedidosValidos = new ArrayList<>();
+
+        // Obtener números de pedido del lote
         Set<String> numerosPedidoLote = lote.stream()
                 .filter(linea -> linea.length > 0)
                 .map(linea -> linea[0].trim())
@@ -144,6 +132,7 @@ public class CargarPedidosService implements CargarPedidosUseCase {
 
         Set<String> numerosPedidoExistentes = pedidoRepo.existsByNumeroPedidoIn(numerosPedidoLote);
 
+        // Procesar cada línea
         for (int i = 0; i < lote.size(); i++) {
             int numeroLinea = numeroLineaInicial + i;
             String[] linea = lote.get(i);
@@ -152,33 +141,24 @@ public class CargarPedidosService implements CargarPedidosUseCase {
 
             try {
                 PedidoCsvDto dto = parsearLinea(linea, numeroLinea);
-
-                Pedido pedido = validacion.validarYConvertir(
-                        dto, clientesMap, zonasMap, numerosPedidoExistentes);
-
+                Pedido pedido = validacion.validarYConvertir(dto, clientesMap, zonasMap, numerosPedidoExistentes);
                 pedidosValidos.add(pedido);
-
                 numerosPedidoExistentes.add(pedido.getNumeroPedido());
 
             } catch (ValidationException e) {
-                log.debug("Error validación en línea {}: {}", numeroLinea, e.getMessage());
                 resumen.agregarError(numeroLinea, e.getMessage(), e.getTipoError());
             } catch (Exception e) {
-                log.warn("Error inesperado en línea {}: {}", numeroLinea, e.getMessage());
                 resumen.agregarError(numeroLinea, e.getMessage(), TipoError.FORMATO_INVALIDO);
             }
         }
 
+        // Guardar pedidos válidos
         if (!pedidosValidos.isEmpty()) {
             try {
                 pedidoRepo.saveAll(pedidosValidos);
                 pedidosValidos.forEach(p -> resumen.agregarExito());
-                log.debug("Guardados {} pedidos del lote", pedidosValidos.size());
             } catch (Exception e) {
-                log.error("Error guardando lote de pedidos", e);
-                pedidosValidos.forEach(p ->
-                        resumen.agregarError(0, "Error guardando pedido: " + p.getNumeroPedido(),
-                                TipoError.FORMATO_INVALIDO));
+                log.error("Error guardando lote", e);
                 throw e;
             }
         }
@@ -191,26 +171,23 @@ public class CargarPedidosService implements CargarPedidosUseCase {
             ResumenCargaDto resumen
     ) {
         int totalLineas = lineas.size();
-        int numeroLote = 0;
 
         for (int i = 0; i < totalLineas; i += batchSize) {
-            numeroLote++;
             int finLote = Math.min(i + batchSize, totalLineas);
             List<String[]> lote = lineas.subList(i, finLote);
-
-            log.debug("Procesando lote {} ({} líneas)", numeroLote, lote.size());
 
             try {
                 procesarLote(lote, i + 2, clientesMap, zonasMap, resumen);
             } catch (Exception e) {
-                log.error("Error procesando lote {}", numeroLote, e);
+                log.error("Error procesando lote", e);
+
             }
         }
     }
 
     private PedidoCsvDto parsearLinea(String[] datos, int numeroLinea) throws Exception {
         if (datos.length < 6) {
-            throw new Exception("Formato incorrecto: se esperaban 6 columnas, se encontraron " + datos.length);
+            throw new Exception("Formato incorrecto: faltan columnas");
         }
 
         return PedidoCsvDto.builder()
@@ -226,13 +203,11 @@ public class CargarPedidosService implements CargarPedidosUseCase {
 
     private Map<String, Cliente> cargarClientes() {
         List<Cliente> clientes = clienteRepo.findAllActivos();
-        return clientes.stream()
-                .collect(Collectors.toMap(Cliente::getId, c -> c));
+        return clientes.stream().collect(Collectors.toMap(Cliente::getId, c -> c));
     }
 
     private Map<String, Zona> cargarZonas() {
         List<Zona> zonas = zonaRepo.findAll();
-        return zonas.stream()
-                .collect(Collectors.toMap(Zona::getId, z -> z));
+        return zonas.stream().collect(Collectors.toMap(Zona::getId, z -> z));
     }
 }
