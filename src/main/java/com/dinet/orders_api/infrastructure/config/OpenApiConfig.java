@@ -17,7 +17,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Orders API")
                         .version("1.0")
-                        .description("API para cargar pedidos desde archivos CSV"))
+                        .description("API que no permitira cargar pedidos directos a la base de datos desde archivos CSV"))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new Components()
                         .addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()));

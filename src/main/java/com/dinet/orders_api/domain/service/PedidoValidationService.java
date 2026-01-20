@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class PedidoValidationService {
@@ -92,7 +91,6 @@ public class PedidoValidationService {
 
         // Crear pedido
         Pedido pedido = new Pedido();
-//        pedido.setId(UUID.randomUUID());
         pedido.setNumeroPedido(dto.getNumeroPedido());
         pedido.setClienteId(dto.getClienteId());
         pedido.setZonaId(dto.getZonaEntrega());

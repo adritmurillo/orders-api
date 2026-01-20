@@ -107,7 +107,6 @@ public class CargarPedidosService implements CargarPedidosUseCase {
     @Transactional
     protected void registrarCargaIdempotencia(String idempotencyKey, String archivoHash) {
         CargaIdempotencia carga = new CargaIdempotencia();
-//        carga.setId(UUID.randomUUID());
         carga.setIdempotencyKey(idempotencyKey);
         carga.setArchivoHash(archivoHash);
         carga.setCreatedAt(LocalDateTime.now());
