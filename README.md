@@ -1,4 +1,4 @@
-# Orders API - Prueba Técnica
+# Orders API - Carga masiva
 
 Se desarrolló el siguiente API REST con el objetivo de cumplir la carga masiva de datos mientras que al mismo tiempo se validan y procesan los pedidos que son enviados en archivos .csv. Este sistema fue hecho con arquitectura hexagonal, por lo que tiene un diseño robusto, escalable pero sobretodo eficiente para manejar grandes volumenes de datos.
 
