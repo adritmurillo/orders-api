@@ -43,14 +43,14 @@ ${DB_URL}, ${DB_USER}, ${DB_PASSWORD}. Asi que para que el sistema arranque de f
 
 ### 4. Ejecutar la aplicacion
 
-De cualquier forma, para simplificar el arranque del sistema, puedes ejecutar estos comandos, colocando ahí tus credenciales y reemplazando donde dice "tu_usuario" por tu usuario real (que suele ser postgres) y "tu_contraseña" por tu contraseña real.
+De cualquier forma, para simplificar el arranque del sistema, puedes ejecutar estos comandos, colocando ahí tus credenciales y reemplazando donde dice "tu_usuario" por tu usuario real (que suele ser postgres) y "tu_contraseña" por tu contraseña real. Recuerde que debe tener el servicio de PostgreSQL corriendo. 
 
 ```bash
 # Linux / Mac
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_URL=jdbc:postgresql://localhost:5432/orders_db --DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
 
 # Windows (CMD)
-mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
+mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_URL=jdbc:postgresql://localhost:5432/orders_db --DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
 ```
 
 La API estará disponible en http://localhost:8080
