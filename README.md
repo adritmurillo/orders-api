@@ -37,15 +37,17 @@ Cabe resaltar que no será necesario crear las tablas, porque al iniciar la apli
 En la aplicacion, dentro de application.properties, ubicado en orders-api\src\main\resources esta el URL, user y password definidas con variables de entorno:
 ${DB_URL}, ${DB_USER}, ${DB_PASSWORD}. Asi que para que el sistema arranque de forma adecuada, asegurese de tener definidas las credenciales mencionadas: 
 
-DB_URL: URL de conexión (ej: jdbc:postgresql://localhost:5432/orders_db)
-DB_USER: Tu usuario de Postgres (ej: postgres)
-DB_PASSWORD: Tu contraseña 
+* DB_URL: URL de conexión (ej: jdbc:postgresql://localhost:5432/orders_db)
+* DB_USER: Tu usuario de Postgres (ej: postgres)
+* DB_PASSWORD: Tu contraseña
+
+De cualquier forma, para simplificar el arranque del sistema, puedes ejecutar los siguientes comandos colocando ahí tus credenciales, sin la necesidad de configurar las variables de entorno
 
 ### 4. Ejecutar la aplicacion
 
 ```bash
 # Linux / Mac
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_USER=postgres --DB_PASSWORD=tu_clave"
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
 
 # Windows (CMD)
 mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
