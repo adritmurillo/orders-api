@@ -94,9 +94,17 @@ Se separó el código en distintas capas para separar la lógica del negocio de 
 
 ## Recursos para pruebas
 
-En este mismo repositorio estarán las carpetas /postman y /samples las cuales facilitaran las pruebas. Se recomienda descargar estos archivos: 
-* Orders API - Prueba Técnica.postman_collection.json
-* pedidos_validos.csv
-* pedidos_con_errores.csv
+Cuando clones este proyecto encontrarás la carpeta `/samples` y `/postman` donde se incluyen los archivos necesarios para verificar la funcionalidad:
 
-Para utilizarlas, en primer lugar debemos ejecutar Postman, después darle click a "Import", una vez dentro debemos de cargar el archivo .json que acabas de descargar y listo, automaticamente tendras la coleccion en tu Postman para hacer las pruebas, no necesitas tocar nada mas ya que ahí estará todo configurado, incluso los archivos .csv estarán cargados y listos para darle click en "Send".
+* `Orders_API.postman_collection.json` (Colección con las peticiones configuradas)
+* `samples/pedidos_validos.csv` (Datos correctos)
+* `samples/pedidos_con_errores.csv` (Datos para forzar validaciones)
+
+**Instrucciones para Postman:**
+1. Abre Postman y haz clic en **Import**.
+2. Carga el archivo `.json` incluido en este repositorio.
+3. Abre la petición deseada (ej. "Cargar pedidos válidos").
+4. Ve a la pestaña **Body**.
+5. **Importante:** Deberás **volver a seleccionar el archivo CSV** correspondiente desde la carpeta `/samples` (ya que las rutas de archivo locales no se conservan al importar la colección).
+6. Haz clic en **Send**.
+7. Repetir el proceso de volver a seleccionar el archivo CSV en las siguientes consultas.
