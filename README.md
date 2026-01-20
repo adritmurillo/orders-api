@@ -1,6 +1,6 @@
 # Orders API - Carga masiva
 
-Se desarrolló el siguiente API REST con el objetivo de cumplir la carga masiva de datos mientras que al mismo tiempo se validan y procesan los pedidos que son enviados en archivos .csv. Este sistema fue hecho con arquitectura hexagonal, por lo que tiene un diseño robusto, escalable pero sobretodo eficiente para manejar grandes volumenes de datos.
+Se desarrolló la siguiente API REST con el objetivo de cumplir la carga masiva de datos mientras que al mismo tiempo se validan y procesan los pedidos que son enviados en archivos .csv. Este sistema fue hecho con arquitectura hexagonal, por lo que tiene un diseño robusto, escalable pero sobretodo eficiente para manejar grandes volumenes de datos.
 
 ---
 
@@ -53,7 +53,7 @@ De cualquier forma, para simplificar el arranque del sistema, puedes ejecutar es
 mvnw spring-boot:run -Dspring-boot.run.arguments="--DB_URL=jdbc:postgresql://localhost:5432/orders_db --DB_USER=tu_usuario --DB_PASSWORD=tu_clave"
 ```
 
-La API estará disponible en http://localhost:8080
+La API estará disponible en http://localhost:8080/swagger-ui.html
 
 ## Testing y cobertura
 
