@@ -1,0 +1,248 @@
+{
+  "info": {
+    "_postman_id": "6fe75b84-0984-4dac-8153-9ce7653ebb46",
+    "name": "Orders API - Prueba Técnica",
+    "description": "Colección de requests para probar la API de carga de pedidos desde CSV",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "45427031"
+  },
+  "item": [
+    {
+      "name": "1. Cargar pedidos válidos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer mock-token-123",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "test-validos-{{$timestamp}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "description": "Archivo CSV con pedidos válidos",
+              "src": "/J:/Java/orders-api/samples/pedidos_validos.csv"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pedidos/cargar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pedidos",
+            "cargar"
+          ]
+        },
+        "description": "Carga un CSV con 5 pedidos válidos. Todos deberían guardarse correctamente."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Cargar pedidos con errores",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer mock-token-123",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "test-errores-{{$timestamp}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "description": "Archivo CSV con errores intencionales",
+              "src": "/J:/Java/orders-api/samples/pedidos_con_errores.csv"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pedidos/cargar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pedidos",
+            "cargar"
+          ]
+        },
+        "description": "Carga un CSV con 7 pedidos donde 6 tienen errores:\n- Cliente no existe\n- Fecha pasada\n- Estado inválido\n- Zona no existe\n- Requiere refrigeración en zona sin soporte\n- Cliente inactivo"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Test de idempotencia (mismo archivo)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer mock-token-123",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "idempotencia-fixed-key",
+            "description": "Clave fija para probar idempotencia",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/J:/Java/orders-api/samples/pedidos_validos.csv"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pedidos/cargar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pedidos",
+            "cargar"
+          ]
+        },
+        "description": "Ejecutar este request 2 veces con la misma Idempotency-Key.\nLa primera vez procesa el archivo.\nLa segunda vez retorna mensaje de 'archivo ya procesado'."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Error - Sin header Idempotency-Key",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer mock-token-123",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/J:/Java/orders-api/samples/pedidos_validos.csv"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pedidos/cargar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pedidos",
+            "cargar"
+          ]
+        },
+        "description": "Debe retornar error 400 porque falta el header obligatorio Idempotency-Key"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Error - Sin autenticación",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "test-key",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/J:/Java/orders-api/samples/pedidos_validos.csv"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pedidos/cargar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pedidos",
+            "cargar"
+          ]
+        },
+        "description": "Debe retornar error 401 porque falta el token JWT en el header Authorization"
+      },
+      "response": []
+    },
+    {
+      "name": "Swagger UI",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/swagger-ui.html",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "swagger-ui.html"
+          ]
+        },
+        "description": "Abre la interfaz Swagger UI para documentación interactiva"
+      },
+      "response": []
+    },
+    {
+      "name": "OpenAPI Spec (JSON)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v3/api-docs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v3",
+            "api-docs"
+          ]
+        },
+        "description": "Obtiene la especificación OpenAPI 3 en formato JSON"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}

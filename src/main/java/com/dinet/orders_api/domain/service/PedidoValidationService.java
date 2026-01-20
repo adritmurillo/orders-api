@@ -23,7 +23,7 @@ public class PedidoValidationService {
     ) throws ValidationException {
         if (!dto.getNumeroPedido().matches("^[a-zA-Z0-9]+$")) {
             throw new ValidationException(
-                    "El número de pedido debe ser alfanumérico",
+                    "El número de pedido debe ser alfanumérico: " + dto.getNumeroPedido(),
                     TipoError.NUMERO_PEDIDO_INVALIDO
             );
         }
@@ -84,7 +84,7 @@ public class PedidoValidationService {
         boolean necesitaFrio = Boolean.parseBoolean(dto.getRequiereRefrigeracion());
         if (necesitaFrio && !zona.isSoporteRefrigeracion()) {
             throw new ValidationException(
-                    "La zona no soporta refrigeración",
+                    "La zona no soporta refrigeración: " + dto.getZonaEntrega(),
                     TipoError.CADENA_FRIO_NO_SOPORTADA
             );
         }
