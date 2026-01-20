@@ -95,7 +95,7 @@ Se separó el código en distintas capas para separar la lógica del negocio de 
 ## Recursos para pruebas
 
 En este mismo repositorio estarán las carpetas /postman y /samples las cuales facilitaran las pruebas. Se recomienda descargar estos archivos: 
-* Orders API - Prueba Técnica.postman_collection
+* Orders API - Prueba Técnica.postman_collection.json
 * pedidos_validos.csv
 * pedidos_con_errores.csv
 
